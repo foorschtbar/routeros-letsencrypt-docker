@@ -1,6 +1,7 @@
 #!/bin/sh
 set -a
 
+echo "+++++++++++++++++++++++++++++++++++++++++++++"
 echo "Start cycle at $( date '+%Y-%m-%d %H:%M:%S' )"
 
 #######################
@@ -13,30 +14,39 @@ LEGO_MODE=${LEGO_MODE:-renew}
 LEGO_DNS_TIMEOUT=${LEGO_DNS_TIMEOUT:-10}
 LEGO_KEY_TYPE=${LEGO_KEY_TYPE-ec384}
 
+echo "Mode: $LEGO_MODE"
+
 # Get endpoint
-ENDPOINT='https://acme-v02.api.letsencrypt.org/directory'
+echo -n "Entpoint: "
 if [ "$LEGO_STAGING" == "1" ]; then
     ENDPOINT='https://acme-staging-v02.api.letsencrypt.org/directory'
+    echo "staging ($ENDPOINT)"
+else
+    ENDPOINT='https://acme-v02.api.letsencrypt.org/directory'
+    echo "production ($ENDPOINT)"
 fi
 
 LEGO_DOMAINS=${LEGO_DOMAINS:-}
+echo "Domains: $LEGO_DOMAINS"
 LEGO_DOMAINS=$(  ( [ -n "$LEGO_DOMAINS" ] && echo ${LEGO_DOMAINS//;/ --domains } ) )
 
 # Stop here if no LEGO_DOMAINS were given as arguments
 [ -z "$LEGO_DOMAINS" ] && echo 'Domain(s) not provided.' && exit 1
 
-
 LEGO_EMAIL_ADDRESS=${LEGO_EMAIL_ADDRESS:-}
 
 # Stop here if no email address given as arguments
-[ -z "$LEGO_EMAIL_ADDRESS" ] && echo 'Email Address not provided.' && exit 1
+[ -z "$LEGO_EMAIL_ADDRESS" ] && echo 'Email Address not provided' && exit 1 || echo "E-Mail: $LEGO_EMAIL_ADDRESS"
 
-[ -n "$LEGO_PROVIDER" ] && echo "Using dns LEGO_PROVIDER $LEGO_PROVIDER."
+[ -n "$LEGO_PROVIDER" ] && echo "DNS provider: $LEGO_PROVIDER"
+
+
+[ "$LEGO_MODE" == *"renew"* ] && DAYS="--days=60" || DAYS=""
 
 if [ -n "$LEGO_PROVIDER" ]; then
-    /usr/bin/lego --server $ENDPOINT --path /letsencrypt --accept-tos --key-type=$LEGO_KEY_TYPE --domains $LEGO_DOMAINS --email $LEGO_EMAIL_ADDRESS --pem --dns $LEGO_PROVIDER --dns-timeout $LEGO_DNS_TIMEOUT $LEGO_ARGS $LEGO_MODE 
+    /usr/bin/lego --server $ENDPOINT --path /letsencrypt --accept-tos --key-type=$LEGO_KEY_TYPE --domains $LEGO_DOMAINS --email $LEGO_EMAIL_ADDRESS $DAYS --pem --dns $LEGO_PROVIDER --dns-timeout $LEGO_DNS_TIMEOUT $LEGO_ARGS $LEGO_MODE 
 else
-    /usr/bin/lego --server $ENDPOINT --path /letsencrypt --accept-tos --key-type=$LEGO_KEY_TYPE --domains $LEGO_DOMAINS --email $LEGO_EMAIL_ADDRESS --pem $LEGO_ARGS $MODE 
+    /usr/bin/lego --server $ENDPOINT --path /letsencrypt --accept-tos --key-type=$LEGO_KEY_TYPE --domains $LEGO_DOMAINS --email $LEGO_EMAIL_ADDRESS $DAYS --pem $LEGO_ARGS $MODE 
 fi
 if [ ! $? == 0 ]; then
     echo "Failed to get new certificates from LEGO-Client" && exit 1

@@ -22,14 +22,16 @@ This Docker container automatically renews certificates from Let's Encrypt, copi
 
 ## Configuration
 
-The automation process is controlled with these environment variables:
+* Map a SSH private keyfile for login into RouterOS
+* Map a volume/folder to store persistent authorization information between container restarts
+* Configure environment variables to controll the automation process:
 
 Name | Default | Description
 --- | --- | ---
 `ROUTEROS_USER` | _(none)_ | User with policies `ssh, write, ftp, read` 
 `ROUTEROS_HOST` | _(none)_ | RouterOS IP or Hostname
 `ROUTEROS_SSH_PORT` | `22` | RouterOS SSH Port
-`ROUTEROS_PRIVATE_KEY` | _(none)_ | Private Key to connecto to RouterOS
+`ROUTEROS_PRIVATE_KEY` | _(none)_ | Private Key file to connect to RouterOS (set permissions to 0400!)
 `ROUTEROS_DOMAIN` | _(none)_ | Use main domain for wildcard certificate or subdomain for subdomain certificate
 `LEGO_STAGING` | `0` |  Whether to use production or staging LetsEncrypt endpoint. `0` for production, `1` for staging
 `LEGO_KEY_TYPE` | `ec384` | Type of key
@@ -56,17 +58,18 @@ services:
   app:
     image: foorschtbar/routeros-letsencrypt
     environment:
-      - LEGO_STAGING=1
-      - LEGO_PROVIDER=hetzner
+      - LEGO_STAGING=1 # 0 for production, 1 for staging
+      - LEGO_PROVIDER=digitalocean # Example
       - LEGO_DOMAINS=*.mydomain.tld;mydomain.tld
       - LEGO_EMAIL_ADDRESS=admin@mydomain.tld
       - LEGO_KEY_TYPE
-      - HETZNER_API_KEY=changeme
+      - DO_AUTH_TOKEN=changeme # Example
       - ROUTEROS_USER=letsencrypt
       - ROUTEROS_HOST=router.mydomain.tld
       - ROUTEROS_PRIVATE_KEY=/id-rsa
-      - ROUTEROS_DOMAIN=mydomain.tld
+      - ROUTEROS_DOMAIN=mydomain.tld # to catch up certs from LEGO Client
     volumes:
+      - ./data:/letsencrypt # To store persistent authorization information between container restarts
       - ./id-rsa:/id-rsa
     restart: unless-stopped
 ```
