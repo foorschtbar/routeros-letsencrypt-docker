@@ -17,6 +17,9 @@
 
 This Docker container automatically renews certificates from Let's Encrypt, copies them to a MikroTik device running RouterOS, and activates them in the Webserver and API.
 
+* GitHub: [foorschtbar/routeros-letsencrypt-docker](https://github.com/foorschtbar/routeros-letsencrypt-docker)
+* Docker Hub: [foorschtbar/routeros-letsencrypt](https://hub.docker.com/r/foorschtbar/routeros-letsencrypt)
+
 ## Configuration
 
 The automation process is controlled with these environment variables:
@@ -32,7 +35,7 @@ Name | Default | Description
 `LEGO_KEY_TYPE` | `ec384` | Type of key
 `LEGO_DOMAINS` | _(none)_ | Domains (delimited by ';' )
 `LEGO_EMAIL_ADDRESS` | _(none)_ | Email used for registration and recovery contact.
-`LEGO_PROVIDER` | _(none)_ | DNS Provider. Valid values are: `acmedns`, `alidns`, `arvancloud`, `auroradns`, `autodns`, `azure`, `bindman`, `bluecat`, `checkdomain`, `clouddns`, `cloudflare`, `cloudns`, `cloudxns`, `conoha`, `constellix`, `desec`, `designate`, `digitalocean`, `dnsimple`, `dnsmadeeasy`, `dnspod`, `dode`, `dreamhost`, `duckdns`, `dyn`, `dynu`, `easydns`, `edgedns`, `exec`, `exoscale`, `fastdns`, `gandi`, `gandiv5`, `gcloud`, `glesys`, `godaddy`, `hetzner`, `hostingde`, `httpreq`, `iij`, `internal`, `inwx`, `joker`, `lightsail`, `linode`, `linodev4`, `liquidweb`, `luadns`, `mydnsjp`, `mythicbeasts`, `namecheap`, `namedotcom`, `namesilo`, `netcup`, `netlify`, `nifcloud`, `ns1`, `oraclecloud`, `otc`, `ovh`, `pdns`, `rackspace`, `regru`, `rfc2136`, `rimuhosting`, `route53`, `sakuracloud`, `scaleway`, `selectel`, `servercow`, `stackpath`, `transip`, `vegadns`, `versio`, `vscale`, `vultr`, `yandex`, `zoneee`, `zonomi`
+`LEGO_PROVIDER` | _(none)_ | [DNS Provider](https://go-acme.github.io/lego/dns/). Valid values are: `acmedns`, `alidns`, `arvancloud`, `auroradns`, `autodns`, `azure`, `bindman`, `bluecat`, `checkdomain`, `clouddns`, `cloudflare`, `cloudns`, `cloudxns`, `conoha`, `constellix`, `desec`, `designate`, `digitalocean`, `dnsimple`, `dnsmadeeasy`, `dnspod`, `dode`, `dreamhost`, `duckdns`, `dyn`, `dynu`, `easydns`, `edgedns`, `exec`, `exoscale`, `fastdns`, `gandi`, `gandiv5`, `gcloud`, `glesys`, `godaddy`, `hetzner`, `hostingde`, `httpreq`, `iij`, `internal`, `inwx`, `joker`, `lightsail`, `linode`, `linodev4`, `liquidweb`, `luadns`, `mydnsjp`, `mythicbeasts`, `namecheap`, `namedotcom`, `namesilo`, `netcup`, `netlify`, `nifcloud`, `ns1`, `oraclecloud`, `otc`, `ovh`, `pdns`, `rackspace`, `regru`, `rfc2136`, `rimuhosting`, `route53`, `sakuracloud`, `scaleway`, `selectel`, `servercow`, `stackpath`, `transip`, `vegadns`, `versio`, `vscale`, `vultr`, `yandex`, `zoneee`, `zonomi`
 `LEGO_DNS_TIMEOUT` | `10` | Set the DNS timeout value to a specific value in seconds
 `LEGO_ARGS` | _(none)_ | Send arguments directly to lego, e.g. `"--dns.disable-cp"` or `"--dns.resolvers 1.1.1.1"`
 `<KEY/TOKEN_FROM_PROVIDER>` | _(none)_ | See [Configuration of DNS Providers](https://go-acme.github.io/lego/dns/)
