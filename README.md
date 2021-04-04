@@ -1,0 +1,76 @@
+# Let's Encrypt for RouterOS Webserver/API
+
+[
+  ![](https://img.shields.io/docker/v/foorschtbar/routeros-letsencrypt?style=plastic)
+  ![](https://img.shields.io/docker/pulls/foorschtbar/routeros-letsencrypt?style=plastic)
+  ![](https://img.shields.io/docker/stars/foorschtbar/routeros-letsencrypt?style=plastic)
+  ![](https://img.shields.io/docker/image-size/foorschtbar/routeros-letsencrypt?style=plastic)
+](https://hub.docker.com/repository/docker/foorschtbar/routeros-letsencrypt)
+[
+  ![](https://img.shields.io/github/workflow/status/foorschtbar/routeros-letsencrypt-docker/Build%20Docker%20Images?style=plastic)
+  ![](https://img.shields.io/github/languages/top/foorschtbar/routeros-letsencrypt-docker?style=plastic)
+  ![](https://img.shields.io/github/last-commit/foorschtbar/routeros-letsencrypt-docker?style=plastic)
+  ![](https://img.shields.io/github/license/foorschtbar/routeros-letsencrypt-docker?style=plastic)
+](https://github.com/foorschtbar/routeros-letsencrypt-docker)
+
+[![MikroTik](https://i.mt.lv/mtv2/logo.svg)](https://mikrotik.com/)
+
+This Docker container automatically renews certificates from Let's Encrypt, copies them to a MikroTik device running RouterOS, and activates them in the Webserver and API.
+
+## Configuration
+
+The automation process is controlled with these environment variables:
+
+Name | Default | Description
+--- | --- | ---
+`ROUTEROS_USER` | _(none)_ | User with policies `ssh, write, ftp, read` 
+`ROUTEROS_HOST` | _(none)_ | RouterOS IP or Hostname
+`ROUTEROS_SSH_PORT` | `22` | RouterOS SSH Port
+`ROUTEROS_PRIVATE_KEY` | _(none)_ | Private Key to connecto to RouterOS
+`ROUTEROS_DOMAIN` | _(none)_ | Use main domain for wildcard certificate or subdomain for subdomain certificate
+`LEGO_STAGING` | `0` |  Whether to use production or staging LetsEncrypt endpoint. `0` for production, `1` for staging
+`LEGO_KEY_TYPE` | `ec384` | Type of key
+`LEGO_DOMAINS` | _(none)_ | Domains (delimited by ';' )
+`LEGO_EMAIL_ADDRESS` | _(none)_ | Email used for registration and recovery contact.
+`LEGO_PROVIDER` | _(none)_ | DNS Provider. Valid values are: `acmedns`, `alidns`, `arvancloud`, `auroradns`, `autodns`, `azure`, `bindman`, `bluecat`, `checkdomain`, `clouddns`, `cloudflare`, `cloudns`, `cloudxns`, `conoha`, `constellix`, `desec`, `designate`, `digitalocean`, `dnsimple`, `dnsmadeeasy`, `dnspod`, `dode`, `dreamhost`, `duckdns`, `dyn`, `dynu`, `easydns`, `edgedns`, `exec`, `exoscale`, `fastdns`, `gandi`, `gandiv5`, `gcloud`, `glesys`, `godaddy`, `hetzner`, `hostingde`, `httpreq`, `iij`, `internal`, `inwx`, `joker`, `lightsail`, `linode`, `linodev4`, `liquidweb`, `luadns`, `mydnsjp`, `mythicbeasts`, `namecheap`, `namedotcom`, `namesilo`, `netcup`, `netlify`, `nifcloud`, `ns1`, `oraclecloud`, `otc`, `ovh`, `pdns`, `rackspace`, `regru`, `rfc2136`, `rimuhosting`, `route53`, `sakuracloud`, `scaleway`, `selectel`, `servercow`, `stackpath`, `transip`, `vegadns`, `versio`, `vscale`, `vultr`, `yandex`, `zoneee`, `zonomi`
+`LEGO_DNS_TIMEOUT` | `10` | Set the DNS timeout value to a specific value in seconds
+`LEGO_ARGS` | _(none)_ | Send arguments directly to lego, e.g. `"--dns.disable-cp"` or `"--dns.resolvers 1.1.1.1"`
+`<KEY/TOKEN_FROM_PROVIDER>` | _(none)_ | See [Configuration of DNS Providers](https://go-acme.github.io/lego/dns/)
+
+## SSH Setup
+
+* Generate SSH Key Pair
+* Upload Public key to RouterOS
+* Add User/Group and import Public SSH Key
+* Pass private key into Docker container
+
+## Example
+
+```yaml
+version: "3"
+
+services:
+  app:
+    image: foorschtbar/routeros-letsencrypt
+    environment:
+      - LEGO_STAGING=1
+      - LEGO_PROVIDER=hetzner
+      - LEGO_DOMAINS=*.mydomain.tld;mydomain.tld
+      - LEGO_EMAIL_ADDRESS=admin@mydomain.tld
+      - LEGO_KEY_TYPE
+      - HETZNER_API_KEY=changeme
+      - ROUTEROS_USER=letsencrypt
+      - ROUTEROS_HOST=router.mydomain.tld
+      - ROUTEROS_PRIVATE_KEY=/id-rsa
+      - ROUTEROS_DOMAIN=mydomain.tld
+    volumes:
+      - ./id-rsa:/id-rsa
+    restart: unless-stopped
+```
+
+## Credits
+
+Inspired by
+
+* [acme-lego-cron](https://github.com/brahma-dev/acme-lego-cron)
+* [Let's Encrypt RouterOS / Mikrotik](https://github.com/gitpel/letsencrypt-routeros)
