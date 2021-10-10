@@ -71,7 +71,7 @@ echo -n "Checking connection to RouterOS..."
 $routeros /system resource print > /dev/null
 [ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 
-if [ ! -f $CERTIFICATE ] && [ ! -f $LEGO_CERT_KEY_PATH ]; then
+if [ ! -f $CERTIFICATE ] || [ ! -f $KEY ]; then
     echo "File(s) not found:\n$CERTIFICATE\n$KEY\n" && exit 1
 fi
 
