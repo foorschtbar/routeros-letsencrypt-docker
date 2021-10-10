@@ -60,8 +60,8 @@ if [[ -z $ROUTEROS_USER ]] || [[ -z $ROUTEROS_HOST ]] || [[ -z $ROUTEROS_SSH_POR
     echo "Check the enviroment variables. Some informations are missing." && exit 1
 fi
 
-CERTIFICATE="/letsencrypt/certificates/_.$ROUTEROS_DOMAIN.pem"
-KEY="/letsencrypt/certificates/_.$ROUTEROS_DOMAIN.key"
+CERTIFICATE="/letsencrypt/certificates/$ROUTEROS_DOMAIN.pem"
+KEY="/letsencrypt/certificates/$ROUTEROS_DOMAIN.key"
 
 #Create alias for RouterOS command
 routeros="ssh -i $ROUTEROS_PRIVATE_KEY -o StrictHostKeyChecking=no $ROUTEROS_USER@$ROUTEROS_HOST -p $ROUTEROS_SSH_PORT"
