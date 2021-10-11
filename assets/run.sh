@@ -8,11 +8,12 @@ echo "Start cycle at $( date '+%Y-%m-%d %H:%M:%S' )"
 # Get Certificate     #
 #######################
 
-LEGO_STAGING=${LEGO_STAGING:-0}
+LEGO_STAGING=${LEGO_STAGING:=1}
 LEGO_ARGS=${LEGO_ARGS:-}
-LEGO_MODE=${LEGO_MODE:-renew}
-LEGO_DNS_TIMEOUT=${LEGO_DNS_TIMEOUT:-10}
-LEGO_KEY_TYPE=${LEGO_KEY_TYPE-ec384}
+LEGO_MODE=${LEGO_MODE:=renew}
+LEGO_DNS_TIMEOUT=${LEGO_DNS_TIMEOUT:=10}
+LEGO_KEY_TYPE=${LEGO_KEY_TYPE:=ec384}
+ROUTEROS_SSH_PORT=${ROUTEROS_SSH_PORT:=22}
 
 echo "Mode: $LEGO_MODE"
 
@@ -57,7 +58,7 @@ fi
 #######################
 
 if [[ -z $ROUTEROS_USER ]] || [[ -z $ROUTEROS_HOST ]] || [[ -z $ROUTEROS_SSH_PORT ]] || [[ -z $ROUTEROS_PRIVATE_KEY ]] || [[ -z $ROUTEROS_DOMAIN ]]; then
-    echo "Check the enviroment variables. Some informations are missing." && exit 1
+    echo "Check the environment variables. Some information is missing." && exit 1
 fi
 
 CERTIFICATE="/letsencrypt/certificates/$ROUTEROS_DOMAIN.pem"
