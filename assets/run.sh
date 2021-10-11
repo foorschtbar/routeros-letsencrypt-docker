@@ -65,15 +65,6 @@ fi
 # Fix filename if ROUTEROS_DOMAIN domain begins with wildcard-domain *.domain.tld
 ROUTEROS_DOMAIN=${ROUTEROS_DOMAIN//\*/_}
 
-#if [[ "${LEGO_DOMAINS:0:2}" == '*.' ]]; then
-#    LEGO_FILENAME="_.$ROUTEROS_DOMAIN"
-#else
-#    LEGO_FILENAME="$ROUTEROS_DOMAIN"
-#fi
-
-#CERTIFICATE="/letsencrypt/certificates/$LEGO_FILENAME.pem"
-#KEY="/letsencrypt/certificates/$LEGO_FILENAME.key"
-
 CERTIFICATE="/letsencrypt/certificates/$ROUTEROS_DOMAIN.pem"
 KEY="/letsencrypt/certificates/$ROUTEROS_DOMAIN.key"
 
