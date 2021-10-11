@@ -33,7 +33,7 @@ Name | Default | Description
 `ROUTEROS_SSH_PORT` | `22` | RouterOS SSH Port
 `ROUTEROS_PRIVATE_KEY` | _(none)_ | Private Key file to connect to RouterOS (set permissions to 0400!)
 `ROUTEROS_DOMAIN` | _(none)_ | Use main domain for wildcard certificate or subdomain for subdomain certificate
-`LEGO_STAGING` | `0` |  Whether to use production or staging LetsEncrypt endpoint. `0` for production, `1` for staging
+`LEGO_STAGING` | `1` |  Whether to use production or staging LetsEncrypt endpoint. `0` for production, `1` for staging
 `LEGO_KEY_TYPE` | `ec384` | Type of key
 `LEGO_DOMAINS` | _(none)_ | Domains (delimited by ';' )
 `LEGO_EMAIL_ADDRESS` | _(none)_ | Email used for registration and recovery contact.
@@ -58,11 +58,10 @@ services:
   app:
     image: foorschtbar/routeros-letsencrypt
     environment:
-      - LEGO_STAGING=1 # 0 for production, 1 for staging
+      - LEGO_STAGING=1 # 0 for production, 1 for staging (default)
       - LEGO_PROVIDER=digitalocean # Example
       - LEGO_DOMAINS=*.mydomain.tld;mydomain.tld
       - LEGO_EMAIL_ADDRESS=admin@mydomain.tld
-      - LEGO_KEY_TYPE
       - DO_AUTH_TOKEN=changeme # Example
       - ROUTEROS_USER=letsencrypt
       - ROUTEROS_HOST=router.mydomain.tld
