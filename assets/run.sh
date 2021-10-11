@@ -28,6 +28,7 @@ else
 fi
 
 LEGO_DOMAINS=${LEGO_DOMAINS:-}
+LEGO_DOMAINS="$(echo -e "${LEGO_DOMAINS}" | tr -d '[:space:]')" # Remove all whitespace 
 echo "Domains: $LEGO_DOMAINS"
 LEGO_DOMAINS=$(  ( [ -n "$LEGO_DOMAINS" ] && echo ${LEGO_DOMAINS//;/ --domains } ) )
 
@@ -61,8 +62,22 @@ if [[ -z $ROUTEROS_USER ]] || [[ -z $ROUTEROS_HOST ]] || [[ -z $ROUTEROS_SSH_POR
     echo "Check the environment variables. Some information is missing." && exit 1
 fi
 
-CERTIFICATE="/letsencrypt/certificates/$ROUTEROS_DOMAIN.pem"
-KEY="/letsencrypt/certificates/$ROUTEROS_DOMAIN.key"
+# Fix filename if requested domains begins with wildcard-domain *.domain.tld
+if [[ "${LEGO_DOMAINS:0:2}" == '*.' ]]; then
+    LEGO_FILENAME="_.$ROUTEROS_DOMAIN"
+else
+    LEGO_FILENAME="$ROUTEROS_DOMAIN"
+fi
+
+CERTIFICATE="/letsencrypt/certificates/$LEGO_FILENAME.pem"
+KEY="/letsencrypt/certificates/$LEGO_FILENAME.key"
+
+#Check cert and keyfile
+if [ ! -f $CERTIFICATE ]; then
+    echo "File not found: $CERTIFICATE" && exit 1
+elif [ ! -f $KEY ]; then
+    echo "File not found: $KEY" && exit 1
+fi
 
 #Create alias for RouterOS command
 routeros="ssh -i $ROUTEROS_PRIVATE_KEY -o StrictHostKeyChecking=no $ROUTEROS_USER@$ROUTEROS_HOST -p $ROUTEROS_SSH_PORT"
@@ -71,10 +86,6 @@ routeros="ssh -i $ROUTEROS_PRIVATE_KEY -o StrictHostKeyChecking=no $ROUTEROS_USE
 echo -n "Checking connection to RouterOS..."
 $routeros /system resource print > /dev/null
 [ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
-
-if [ ! -f $CERTIFICATE ] || [ ! -f $KEY ]; then
-    echo "File(s) not found:\n$CERTIFICATE\n$KEY\n" && exit 1
-fi
 
 #######################
 # Create Certificate  #
