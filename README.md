@@ -58,11 +58,10 @@ services:
   app:
     image: foorschtbar/routeros-letsencrypt
     environment:
-      - LEGO_STAGING=1 # 0 for production, 1 for staging
+      - LEGO_STAGING=1 # 0 for production, 1 for staging (default)
       - LEGO_PROVIDER=digitalocean # Example
       - LEGO_DOMAINS=*.mydomain.tld;mydomain.tld
       - LEGO_EMAIL_ADDRESS=admin@mydomain.tld
-      - LEGO_KEY_TYPE
       - DO_AUTH_TOKEN=changeme # Example
       - ROUTEROS_USER=letsencrypt
       - ROUTEROS_HOST=router.mydomain.tld
