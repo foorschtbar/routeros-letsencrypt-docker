@@ -32,7 +32,7 @@ Name | Default | Description
 `ROUTEROS_HOST` | _(none)_ | RouterOS IP or Hostname
 `ROUTEROS_SSH_PORT` | `22` | RouterOS SSH Port
 `ROUTEROS_PRIVATE_KEY` | _(none)_ | Private Key file to connect to RouterOS (set permissions to 0400!)
-`ROUTEROS_DOMAIN` | _(none)_ | Use main domain for wildcard certificate or subdomain for subdomain certificate
+`ROUTEROS_DOMAIN` | _(none)_ | Domainname for catch up certs from LEGO Client
 `LEGO_STAGING` | `1` |  Whether to use production or staging LetsEncrypt endpoint. `0` for production, `1` for staging
 `LEGO_KEY_TYPE` | `ec384` | Type of key
 `LEGO_DOMAINS` | _(none)_ | Domains (delimited by ';' )
