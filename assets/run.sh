@@ -65,8 +65,6 @@ fi
 # Fix filename if ROUTEROS_DOMAIN domain begins with wildcard-domain *.domain.tld
 ROUTEROS_DOMAIN=${ROUTEROS_DOMAIN//\*/_}
 
-echo $ROUTEROS_DOMAIN
-
 #if [[ "${LEGO_DOMAINS:0:2}" == '*.' ]]; then
 #    LEGO_FILENAME="_.$ROUTEROS_DOMAIN"
 #else
@@ -100,8 +98,6 @@ $routeros /system resource print > /dev/null
 
 # Clean up leading '_' character for wildcard domains
 ROUTEROS_FILENAME=autoupload_${ROUTEROS_DOMAIN/_/}
-
-echo $ROUTEROS_FILENAME
 
 # Remove previous certificate and delete Certificate file if the file exist on RouterOS
 echo -n "Removing previous certificate and delete certificate file if the file exist on RouterOS..."
