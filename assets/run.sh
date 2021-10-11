@@ -63,14 +63,19 @@ if [[ -z $ROUTEROS_USER ]] || [[ -z $ROUTEROS_HOST ]] || [[ -z $ROUTEROS_SSH_POR
 fi
 
 # Fix filename if requested domains begins with wildcard-domain *.domain.tld
-if [[ "${LEGO_DOMAINS:0:2}" == '*.' ]]; then
-    LEGO_FILENAME="_.$ROUTEROS_DOMAIN"
-else
-    LEGO_FILENAME="$ROUTEROS_DOMAIN"
-fi
+ROUTEROS_FILENAME=${ROUTEROS_DOMAIN//\*/_}
 
-CERTIFICATE="/letsencrypt/certificates/$LEGO_FILENAME.pem"
-KEY="/letsencrypt/certificates/$LEGO_FILENAME.key"
+#if [[ "${LEGO_DOMAINS:0:2}" == '*.' ]]; then
+#    LEGO_FILENAME="_.$ROUTEROS_DOMAIN"
+#else
+#    LEGO_FILENAME="$ROUTEROS_DOMAIN"
+#fi
+
+#CERTIFICATE="/letsencrypt/certificates/$LEGO_FILENAME.pem"
+#KEY="/letsencrypt/certificates/$LEGO_FILENAME.key"
+
+CERTIFICATE="/letsencrypt/certificates/$ROUTEROS_FILENAME.pem"
+KEY="/letsencrypt/certificates/$ROUTEROS_FILENAME.key"
 
 #Check cert and keyfile
 if [ ! -f $CERTIFICATE ]; then
