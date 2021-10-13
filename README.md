@@ -32,7 +32,7 @@ Name | Default | Description
 `ROUTEROS_HOST` | _(none)_ | RouterOS IP or Hostname
 `ROUTEROS_SSH_PORT` | `22` | RouterOS SSH Port
 `ROUTEROS_PRIVATE_KEY` | _(none)_ | Private Key file to connect to RouterOS (set permissions to 0400!)
-`ROUTEROS_DOMAIN` | _(none)_ | Domainname for catch up certs from LEGO Client
+`ROUTEROS_DOMAIN` | _(none)_ | Domainname for catch up certs from LEGO Client. Usually the **first** Domain you set in the LEGO_DOMAINS variable
 `LEGO_STAGING` | `1` |  Whether to use production or staging LetsEncrypt endpoint. `0` for production, `1` for staging
 `LEGO_KEY_TYPE` | `ec384` | Type of key
 `LEGO_DOMAINS` | _(none)_ | Domains (delimited by ';' )
@@ -60,13 +60,13 @@ services:
     environment:
       - LEGO_STAGING=1 # 0 for production, 1 for staging (default)
       - LEGO_PROVIDER=digitalocean # Example
-      - LEGO_DOMAINS=*.mydomain.tld;mydomain.tld
+      - LEGO_DOMAINS=mydomain.tld # or *.mydomain.tld for a wildcard cert.
       - LEGO_EMAIL_ADDRESS=admin@mydomain.tld
       - DO_AUTH_TOKEN=changeme # Example
       - ROUTEROS_USER=letsencrypt
       - ROUTEROS_HOST=router.mydomain.tld
       - ROUTEROS_PRIVATE_KEY=/id-rsa
-      - ROUTEROS_DOMAIN=mydomain.tld # to catch up certs from LEGO Client
+      - ROUTEROS_DOMAIN=mydomain.tld # or *.mydomain.tld for a wildcard cert.
     volumes:
       - ./data:/letsencrypt # To store persistent authorization information between container restarts
       - ./id-rsa:/id-rsa
