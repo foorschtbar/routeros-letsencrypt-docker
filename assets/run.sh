@@ -62,15 +62,11 @@ if [[ -z $ROUTEROS_USER ]] || [[ -z $ROUTEROS_HOST ]] || [[ -z $ROUTEROS_SSH_POR
     echo "Check the environment variables. Some information is missing." && exit 1
 fi
 
-# Fix filename if requested domains begins with wildcard-domain *.domain.tld
-if [[ "${LEGO_DOMAINS:0:2}" == '*.' ]]; then
-    LEGO_FILENAME="_.$ROUTEROS_DOMAIN"
-else
-    LEGO_FILENAME="$ROUTEROS_DOMAIN"
-fi
+# Fix filename if ROUTEROS_DOMAIN domain begins with wildcard-domain *.domain.tld
+ROUTEROS_DOMAIN=${ROUTEROS_DOMAIN//\*/_}
 
-CERTIFICATE="/letsencrypt/certificates/$LEGO_FILENAME.pem"
-KEY="/letsencrypt/certificates/$LEGO_FILENAME.key"
+CERTIFICATE="/letsencrypt/certificates/$ROUTEROS_DOMAIN.pem"
+KEY="/letsencrypt/certificates/$ROUTEROS_DOMAIN.key"
 
 #Check cert and keyfile
 if [ ! -f $CERTIFICATE ]; then
@@ -91,20 +87,23 @@ $routeros /system resource print > /dev/null
 # Create Certificate  #
 #######################
 
+# Clean up leading '_' character for wildcard domains
+ROUTEROS_FILENAME=autoupload_${ROUTEROS_DOMAIN/_/}
+
 # Remove previous certificate and delete Certificate file if the file exist on RouterOS
 echo -n "Removing previous certificate and delete certificate file if the file exist on RouterOS..."
-$routeros /certificate remove [find name=autoupload_$ROUTEROS_DOMAIN.pem_0] \; /certificate remove [find name=autoupload_$ROUTEROS_DOMAIN.pem_1] \; /certificate remove [find name=autoupload_$ROUTEROS_DOMAIN.pem_2] \; /file remove autoupload_$ROUTEROS_DOMAIN.pem > /dev/null
+$routeros /certificate remove [find name=$ROUTEROS_FILENAME.pem_0] \; /certificate remove [find name=$ROUTEROS_FILENAME.pem_1] \; /certificate remove [find name=$ROUTEROS_FILENAME.pem_2] \; /file remove $ROUTEROS_FILENAME.pem > /dev/null
 echo "DONE"
 
 # Upload Certificate to RouterOS
 echo -n "Uploading Certificate to RouterOS..."
-scp -q -P $ROUTEROS_SSH_PORT -i "$ROUTEROS_PRIVATE_KEY" "$CERTIFICATE" "$ROUTEROS_USER"@"$ROUTEROS_HOST":"autoupload_$ROUTEROS_DOMAIN.pem"
+scp -q -P $ROUTEROS_SSH_PORT -i "$ROUTEROS_PRIVATE_KEY" "$CERTIFICATE" "$ROUTEROS_USER"@"$ROUTEROS_HOST":"$ROUTEROS_FILENAME.pem"
 [ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 
 sleep 2
 # Import certificate file and delete certificate file after import
 echo -n "Importing certificate file and delete certificate file after import..."
-$routeros /certificate import file-name=autoupload_$ROUTEROS_DOMAIN.pem passphrase=\"\" \; /file remove autoupload_$ROUTEROS_DOMAIN.pem > /dev/null
+$routeros /certificate import file-name=$ROUTEROS_FILENAME.pem passphrase=\"\" \; /file remove $ROUTEROS_FILENAME.pem > /dev/null
 [ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 
 #######################
@@ -113,23 +112,23 @@ $routeros /certificate import file-name=autoupload_$ROUTEROS_DOMAIN.pem passphra
 
 # Delete Certificate file if the file exist on RouterOS
 echo -n "Deleting Certificate file if the file exist on RouterOS..."
-$routeros /file remove autoupload_$KEY.key > /dev/null
+$routeros /file remove $ROUTEROS_FILENAME.key > /dev/null
 echo 'DONE'
 
 # Upload Key to RouterOS
 echo -n "Upload Key to RouterOS..."
-scp -q -P $ROUTEROS_SSH_PORT -i "$ROUTEROS_PRIVATE_KEY" "$KEY" "$ROUTEROS_USER"@"$ROUTEROS_HOST":"autoupload_$ROUTEROS_DOMAIN.key"
+scp -q -P $ROUTEROS_SSH_PORT -i "$ROUTEROS_PRIVATE_KEY" "$KEY" "$ROUTEROS_USER"@"$ROUTEROS_HOST":"$ROUTEROS_FILENAME.key"
 [ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 
 sleep 2
 # Import Key file and delete Certificate file after import
 echo -n "Importing Key file and delete Certificate file after import..."
-$routeros /certificate import file-name=autoupload_$ROUTEROS_DOMAIN.key passphrase=\"\" \; /file remove autoupload_$ROUTEROS_DOMAIN.key > /dev/null
+$routeros /certificate import file-name=$ROUTEROS_FILENAME.key passphrase=\"\" \; /file remove $ROUTEROS_FILENAME.key > /dev/null
 [ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 
 # Set certificate to Webserver
 echo -n "Setting certificate to Webserver and API..."
-$routeros /ip service set www-ssl certificate=autoupload_$ROUTEROS_DOMAIN.pem_0 \; /ip service set api-ssl certificate=autoupload_$ROUTEROS_DOMAIN.pem_0 > /dev/null
+$routeros /ip service set www-ssl certificate=$ROUTEROS_FILENAME.pem_0 \; /ip service set api-ssl certificate=$ROUTEROS_FILENAME.pem_0 > /dev/null
 [ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 
 echo "End cycle at $( date '+%Y-%m-%d %H:%M:%S' )"
