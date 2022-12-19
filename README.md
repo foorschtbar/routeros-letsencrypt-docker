@@ -15,7 +15,7 @@
 
 [![MikroTik](https://i.mt.lv/mtv2/logo.svg)](https://mikrotik.com/)
 
-This Docker container automatically renews certificates from Let's Encrypt, copies them to a MikroTik device running RouterOS, and activates them in the Webserver and API.
+This Docker container automatically renews certificates from Let's Encrypt, copies them to a MikroTik device running RouterOS, and activates them in the Webserver, API and OpenVPN Server.
 
 * GitHub: [foorschtbar/routeros-letsencrypt-docker](https://github.com/foorschtbar/routeros-letsencrypt-docker)
 * Docker Hub: [foorschtbar/routeros-letsencrypt](https://hub.docker.com/r/foorschtbar/routeros-letsencrypt)

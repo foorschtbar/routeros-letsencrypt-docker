@@ -128,7 +128,7 @@ $routeros /certificate import file-name=$ROUTEROS_FILENAME.key passphrase=\"\" \
 
 # Set certificate to Webserver
 echo -n "Setting certificate to Webserver and API..."
-$routeros /ip service set www-ssl certificate=$ROUTEROS_FILENAME.pem_0 \; /ip service set api-ssl certificate=$ROUTEROS_FILENAME.pem_0 > /dev/null
+$routeros /ip service set www-ssl certificate=$ROUTEROS_FILENAME.pem_0 \; /ip service set api-ssl certificate=$ROUTEROS_FILENAME.pem_0 \; /interface ovpn-server server set enabled=yes certificate=$ROUTEROS_FILENAME.pem_0 > /dev/null
 [ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 
 echo "End cycle at $( date '+%Y-%m-%d %H:%M:%S' )"
