@@ -41,6 +41,9 @@ Name | Default | Description
 `LEGO_DNS_TIMEOUT` | `10` | Set the DNS timeout value to a specific value in seconds
 `LEGO_ARGS` | _(none)_ | Send arguments directly to lego, e.g. `"--dns.disable-cp"` or `"--dns.resolvers 1.1.1.1"`
 `<KEY/TOKEN_FROM_PROVIDER>` | _(none)_ | See [Configuration of DNS Providers](https://go-acme.github.io/lego/dns/)
+`SET_ON_WEB` | true | Set the new certificate on the WebServer
+`SET_ON_API` | true | Set the new certificate on the API
+`SET_ON_OVPN` | false | Set the new certificate on the OpenVPN Server
 
 ## SSH Setup
 

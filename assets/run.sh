@@ -15,6 +15,10 @@ LEGO_DNS_TIMEOUT=${LEGO_DNS_TIMEOUT:=10}
 LEGO_KEY_TYPE=${LEGO_KEY_TYPE:=ec384}
 ROUTEROS_SSH_PORT=${ROUTEROS_SSH_PORT:=22}
 
+SET_ON_WEB=${SET_ON_WEB:=true}
+SET_ON_API=${SET_ON_API:=true}
+SET_ON_OVPN=${SET_ON_OVPN:=false}
+
 echo "Mode: $LEGO_MODE"
 
 # Get endpoint
@@ -126,9 +130,25 @@ echo -n "Importing Key file and delete Certificate file after import..."
 $routeros /certificate import file-name=$ROUTEROS_FILENAME.key passphrase=\"\" \; /file remove $ROUTEROS_FILENAME.key > /dev/null
 [ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 
-# Set certificate to Webserver
-echo -n "Setting certificate to Webserver and API..."
-$routeros /ip service set www-ssl certificate=$ROUTEROS_FILENAME.pem_0 \; /ip service set api-ssl certificate=$ROUTEROS_FILENAME.pem_0 \; /interface ovpn-server server set enabled=yes certificate=$ROUTEROS_FILENAME.pem_0 > /dev/null
-[ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
+# Set certificate to WebServer
+if [ "$SET_ON_WEB" = true ]; then
+echo -n "Setting certificate to Webserver..."
+$routeros /ip service set www-ssl certificate=$ROUTEROS_FILENAME.pem_0 > /dev/null
+[ ! $? == 0 ] && echo 'ERROR setting certificate on WebServer!' && exit 1 || echo 'DONE setting certificate on WebServer'
+fi
+
+# Set certificate to API
+if [ "$SET_ON_API" = true ]; then
+echo -n "Setting certificate to API..."
+$routeros /ip service set api-ssl certificate=$ROUTEROS_FILENAME.pem_0 > /dev/null
+[ ! $? == 0 ] && echo 'ERROR setting certificate on API!' && exit 1 || echo 'DONE setting certificate on API'
+fi
+
+# Set certificate to OpenVPN
+if [ "$SET_ON_OVPN" = true ]; then
+echo -n "Setting certificate to OpenVPN..."
+$routeros /interface ovpn-server server set enabled=yes certificate=$ROUTEROS_FILENAME.pem_0 > /dev/null
+[ ! $? == 0 ] && echo 'ERROR setting certificate on OpenVPN!' && exit 1 || echo 'DONE setting certificate on OpenVPN'
+fi
 
 echo "End cycle at $( date '+%Y-%m-%d %H:%M:%S' )"
