@@ -15,7 +15,7 @@
 
 [![MikroTik](https://i.mt.lv/mtv2/logo.svg)](https://mikrotik.com/)
 
-This Docker container automatically renews certificates from Let's Encrypt, copies them to a MikroTik device running RouterOS, and activates them in the Webserver and API.
+This Docker container automatically renews certificates from Let's Encrypt, copies them to a MikroTik device running RouterOS, and activates them in the Webserver, API and OpenVPN Server.
 
 * GitHub: [foorschtbar/routeros-letsencrypt-docker](https://github.com/foorschtbar/routeros-letsencrypt-docker)
 * Docker Hub: [foorschtbar/routeros-letsencrypt](https://hub.docker.com/r/foorschtbar/routeros-letsencrypt)
@@ -41,6 +41,9 @@ Name | Default | Description
 `LEGO_DNS_TIMEOUT` | `10` | Set the DNS timeout value to a specific value in seconds
 `LEGO_ARGS` | _(none)_ | Send arguments directly to lego, e.g. `"--dns.disable-cp"` or `"--dns.resolvers 1.1.1.1"`
 `<KEY/TOKEN_FROM_PROVIDER>` | _(none)_ | See [Configuration of DNS Providers](https://go-acme.github.io/lego/dns/)
+`SET_ON_WEB` | true | Set the new certificate on the WebServer
+`SET_ON_API` | true | Set the new certificate on the API
+`SET_ON_OVPN` | false | Set the new certificate on the OpenVPN Server
 
 ## SSH Setup
 
