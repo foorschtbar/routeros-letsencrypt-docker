@@ -7,7 +7,7 @@
   ![](https://img.shields.io/docker/image-size/foorschtbar/routeros-letsencrypt?style=plastic)
 ](https://hub.docker.com/repository/docker/foorschtbar/routeros-letsencrypt)
 [
-  ![](https://img.shields.io/github/workflow/status/foorschtbar/routeros-letsencrypt-docker/Build%20Docker%20Images?style=plastic)
+  ![](https://img.shields.io/github/actions/workflow/status/foorschtbar/routeros-letsencrypt-docker/build.yml?branch=master&style=plastic)
   ![](https://img.shields.io/github/languages/top/foorschtbar/routeros-letsencrypt-docker?style=plastic)
   ![](https://img.shields.io/github/last-commit/foorschtbar/routeros-letsencrypt-docker?style=plastic)
   ![](https://img.shields.io/github/license/foorschtbar/routeros-letsencrypt-docker?style=plastic)
