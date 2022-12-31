@@ -22,7 +22,7 @@ SET_ON_OVPN=${SET_ON_OVPN:=false}
 echo "Mode: $LEGO_MODE"
 
 # Get endpoint
-echo -n "Entpoint: "
+echo -n "Endpoint: "
 if [ "$LEGO_STAGING" == "1" ]; then
     ENDPOINT='https://acme-staging-v02.api.letsencrypt.org/directory'
     echo "staging ($ENDPOINT)"
