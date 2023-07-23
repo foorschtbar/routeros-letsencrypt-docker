@@ -44,6 +44,8 @@ Name | Default | Description
 `SET_ON_WEB` | true | Set the new certificate on the WebServer
 `SET_ON_API` | true | Set the new certificate on the API
 `SET_ON_OVPN` | false | Set the new certificate on the OpenVPN Server
+`SET_ON_HOTSPOT` | false | Set the new certificate for the HotSpot/CaptivePortal
+`HOTSPOT_PROFILE_NAME`| _(none)_ | HotSpot/CaptivePortal profile name
 
 ## SSH Setup
 

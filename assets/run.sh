@@ -18,7 +18,8 @@ ROUTEROS_SSH_PORT=${ROUTEROS_SSH_PORT:=22}
 SET_ON_WEB=${SET_ON_WEB:=true}
 SET_ON_API=${SET_ON_API:=true}
 SET_ON_OVPN=${SET_ON_OVPN:=false}
-
+SET_ON_HOTSPOT=${SET_ON_HOTSPOT:=false}
+HOTSPOT_PROFILE_NAME=${HOTSPOT_PROFILE_NAME:-}
 echo "Mode: $LEGO_MODE"
 
 # Get endpoint
@@ -149,6 +150,13 @@ if [ "$SET_ON_OVPN" = true ]; then
 echo -n "Setting certificate to OpenVPN..."
 $routeros /interface ovpn-server server set enabled=yes certificate=$ROUTEROS_FILENAME.pem_0 > /dev/null
 [ ! $? == 0 ] && echo 'ERROR setting certificate on OpenVPN!' && exit 1 || echo 'DONE setting certificate on OpenVPN'
+fi
+
+# Set certificate to Hotspot
+if [ "$SET_ON_HOTSPOT" = true ]; then
+echo -n "Setting certificate to Hotspot..."
+$routeros /ip/hotspot/profile set ssl-certificate=$ROUTEROS_FILENAME.pem_0 $HOTSPOT_PROFILE_NAME > /dev/null
+[ ! $? == 0 ] && echo 'ERROR setting certificate on Hotspot!' && exit 1 || echo 'DONE setting certificate on Hotspot'
 fi
 
 echo "End cycle at $( date '+%Y-%m-%d %H:%M:%S' )"
