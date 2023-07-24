@@ -51,9 +51,9 @@ LEGO_EMAIL_ADDRESS=${LEGO_EMAIL_ADDRESS:-}
 [ "$LEGO_MODE" == *"renew"* ] && DAYS="--days=60" || DAYS=""
 
 if [ -n "$LEGO_PROVIDER" ]; then
-    /usr/bin/lego --server $ENDPOINT --path /letsencrypt --accept-tos --key-type=$LEGO_KEY_TYPE --domains $LEGO_DOMAINS --email $LEGO_EMAIL_ADDRESS $DAYS --pem --dns $LEGO_PROVIDER --dns-timeout $LEGO_DNS_TIMEOUT $LEGO_ARGS $LEGO_MODE 
+    /lego --server $ENDPOINT --path /letsencrypt --accept-tos --key-type=$LEGO_KEY_TYPE --domains $LEGO_DOMAINS --email $LEGO_EMAIL_ADDRESS $DAYS --pem --dns $LEGO_PROVIDER --dns-timeout $LEGO_DNS_TIMEOUT $LEGO_ARGS $LEGO_MODE 
 else
-    /usr/bin/lego --server $ENDPOINT --path /letsencrypt --accept-tos --key-type=$LEGO_KEY_TYPE --domains $LEGO_DOMAINS --email $LEGO_EMAIL_ADDRESS $DAYS --pem $LEGO_ARGS $MODE 
+    /lego --server $ENDPOINT --path /letsencrypt --accept-tos --key-type=$LEGO_KEY_TYPE --domains $LEGO_DOMAINS --email $LEGO_EMAIL_ADDRESS $DAYS --pem $LEGO_ARGS $MODE 
 fi
 if [ ! $? == 0 ]; then
     echo "Failed to get new certificates from LEGO-Client" && exit 1
