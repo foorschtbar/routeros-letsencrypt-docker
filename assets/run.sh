@@ -10,7 +10,6 @@ echo "Start cycle at $( date '+%Y-%m-%d %H:%M:%S' )"
 
 LEGO_STAGING=${LEGO_STAGING:=1}
 LEGO_ARGS=${LEGO_ARGS:-}
-LEGO_MODE=${LEGO_MODE:=renew}
 LEGO_DNS_TIMEOUT=${LEGO_DNS_TIMEOUT:=10}
 LEGO_KEY_TYPE=${LEGO_KEY_TYPE:=ec384}
 ROUTEROS_SSH_PORT=${ROUTEROS_SSH_PORT:=22}
@@ -20,7 +19,6 @@ SET_ON_API=${SET_ON_API:=true}
 SET_ON_OVPN=${SET_ON_OVPN:=false}
 SET_ON_HOTSPOT=${SET_ON_HOTSPOT:=false}
 HOTSPOT_PROFILE_NAME=${HOTSPOT_PROFILE_NAME:-}
-echo "Mode: $LEGO_MODE"
 
 # Get endpoint
 echo -n "Endpoint: "
@@ -37,6 +35,12 @@ LEGO_DOMAINS="$(echo -e "${LEGO_DOMAINS}" | tr -d '[:space:]')" # Remove all whi
 echo "Domains: $LEGO_DOMAINS"
 LEGO_DOMAINS=$(  ( [ -n "$LEGO_DOMAINS" ] && echo ${LEGO_DOMAINS//;/ --domains } ) )
 
+# Fix filename if ROUTEROS_DOMAIN domain begins with wildcard-domain *.domain.tld
+ROUTEROS_DOMAIN=${ROUTEROS_DOMAIN//\*/_}
+CERTIFICATE="/letsencrypt/certificates/$ROUTEROS_DOMAIN.pem"
+KEY="/letsencrypt/certificates/$ROUTEROS_DOMAIN.key"
+ACCOUNTS="/letsencrypt/accounts"
+
 # Stop here if no LEGO_DOMAINS were given as arguments
 [ -z "$LEGO_DOMAINS" ] && echo 'Domain(s) not provided.' && exit 1
 
@@ -48,13 +52,21 @@ LEGO_EMAIL_ADDRESS=${LEGO_EMAIL_ADDRESS:-}
 [ -n "$LEGO_PROVIDER" ] && echo "DNS provider: $LEGO_PROVIDER"
 
 
-[ "$LEGO_MODE" == *"renew"* ] && DAYS="--days=60" || DAYS=""
+#Check if we had cert and keyfile
+if [ ! -f $CERTIFICATE ] || [ ! -f $KEY ] || [ ! -d $ACCOUNTS ]; then
+    echo "No account, certificate or keyfile found. Getting new certificates from LEGO-Client..."
+    LEGO_MODE=run
+else
+    echo "Account, Certificate and keyfile found. Renewing certificates from LEGO-Client..."
+    LEGO_MODE='renew --days 60 --no-random-sleep'
+fi
 
 if [ -n "$LEGO_PROVIDER" ]; then
-    /lego --server $ENDPOINT --path /letsencrypt --accept-tos --key-type=$LEGO_KEY_TYPE --domains $LEGO_DOMAINS --email $LEGO_EMAIL_ADDRESS $DAYS --pem --dns $LEGO_PROVIDER --dns-timeout $LEGO_DNS_TIMEOUT $LEGO_ARGS $LEGO_MODE 
+    /lego --server $ENDPOINT --path /letsencrypt --accept-tos --key-type=$LEGO_KEY_TYPE --domains $LEGO_DOMAINS --email $LEGO_EMAIL_ADDRESS --pem --dns $LEGO_PROVIDER --dns-timeout $LEGO_DNS_TIMEOUT $LEGO_ARGS $LEGO_MODE 
 else
-    /lego --server $ENDPOINT --path /letsencrypt --accept-tos --key-type=$LEGO_KEY_TYPE --domains $LEGO_DOMAINS --email $LEGO_EMAIL_ADDRESS $DAYS --pem $LEGO_ARGS $MODE 
+    /lego --server $ENDPOINT --path /letsencrypt --accept-tos --key-type=$LEGO_KEY_TYPE --domains $LEGO_DOMAINS --email $LEGO_EMAIL_ADDRESS --pem $LEGO_ARGS $LEGO_MODE 
 fi
+
 if [ ! $? == 0 ]; then
     echo "Failed to get new certificates from LEGO-Client" && exit 1
 fi
@@ -66,12 +78,6 @@ fi
 if [[ -z $ROUTEROS_USER ]] || [[ -z $ROUTEROS_HOST ]] || [[ -z $ROUTEROS_SSH_PORT ]] || [[ -z $ROUTEROS_PRIVATE_KEY ]] || [[ -z $ROUTEROS_DOMAIN ]]; then
     echo "Check the environment variables. Some information is missing." && exit 1
 fi
-
-# Fix filename if ROUTEROS_DOMAIN domain begins with wildcard-domain *.domain.tld
-ROUTEROS_DOMAIN=${ROUTEROS_DOMAIN//\*/_}
-
-CERTIFICATE="/letsencrypt/certificates/$ROUTEROS_DOMAIN.pem"
-KEY="/letsencrypt/certificates/$ROUTEROS_DOMAIN.key"
 
 #Check cert and keyfile
 if [ ! -f $CERTIFICATE ]; then
