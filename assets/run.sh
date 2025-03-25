@@ -35,6 +35,9 @@ LEGO_DOMAINS="$(echo -e "${LEGO_DOMAINS}" | tr -d '[:space:]')" # Remove all whi
 echo "Domains: $LEGO_DOMAINS"
 LEGO_DOMAINS=$(  ( [ -n "$LEGO_DOMAINS" ] && echo ${LEGO_DOMAINS//;/ --domains } ) )
 
+# Print LEGO version
+echo "LEGO version: $(/lego --version)"
+
 # Fix filename if ROUTEROS_DOMAIN domain begins with wildcard-domain *.domain.tld
 ROUTEROS_DOMAIN=${ROUTEROS_DOMAIN//\*/_}
 CERTIFICATE="/letsencrypt/certificates/$ROUTEROS_DOMAIN.pem"
@@ -112,30 +115,40 @@ scp -q -P $ROUTEROS_SSH_PORT -i "$ROUTEROS_PRIVATE_KEY" "$CERTIFICATE" "$ROUTERO
 [ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 
 sleep 2
-# Import certificate file and delete certificate file after import
-echo -n "Importing certificate file and delete certificate file after import..."
-$routeros /certificate import file-name=$ROUTEROS_FILENAME.pem passphrase=\"\" \; /file remove $ROUTEROS_FILENAME.pem > /dev/null
+# Import certificate file
+echo -n "Importing certificate file..."
+$routeros /certificate import file-name=$ROUTEROS_FILENAME.pem passphrase=\"\" > /dev/null
 [ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
+
+# optional remove certificate file after import
+echo -n "Deleting certificate file after import..."
+$routeros /file remove $ROUTEROS_FILENAME.pem > /dev/null
+echo 'DONE'
 
 #######################
 # Create Key          #
 #######################
 
-# Delete Certificate file if the file exist on RouterOS
-echo -n "Deleting Certificate file if the file exist on RouterOS..."
+# Delete key file if the file exist on RouterOS
+echo -n "Deleting key file if the file exist on RouterOS..."
 $routeros /file remove $ROUTEROS_FILENAME.key > /dev/null
 echo 'DONE'
 
 # Upload Key to RouterOS
-echo -n "Upload Key to RouterOS..."
+echo -n "Upload key to RouterOS..."
 scp -q -P $ROUTEROS_SSH_PORT -i "$ROUTEROS_PRIVATE_KEY" "$KEY" "$ROUTEROS_USER"@"$ROUTEROS_HOST":"$ROUTEROS_FILENAME.key"
 [ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 
 sleep 2
-# Import Key file and delete Certificate file after import
-echo -n "Importing Key file and delete Certificate file after import..."
-$routeros /certificate import file-name=$ROUTEROS_FILENAME.key passphrase=\"\" \; /file remove $ROUTEROS_FILENAME.key > /dev/null
+# Import Key file 
+echo -n "Importing key file..."
+$routeros /certificate import file-name=$ROUTEROS_FILENAME.key passphrase=\"\" \ > /dev/null
 [ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
+
+# optional remove key file after import
+echo -n "Deleting key file after import..."
+$routeros /file remove $ROUTEROS_FILENAME.key > /dev/null
+echo 'DONE'
 
 # Set certificate to WebServer
 if [ "$SET_ON_WEB" = true ]; then
