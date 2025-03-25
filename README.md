@@ -57,8 +57,6 @@ Name | Default | Description
 ## Example
 
 ```yaml
-version: "3"
-
 services:
   app:
     image: foorschtbar/routeros-letsencrypt

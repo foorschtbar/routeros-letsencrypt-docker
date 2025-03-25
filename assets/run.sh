@@ -20,8 +20,10 @@ SET_ON_OVPN=${SET_ON_OVPN:=false}
 SET_ON_HOTSPOT=${SET_ON_HOTSPOT:=false}
 HOTSPOT_PROFILE_NAME=${HOTSPOT_PROFILE_NAME:-}
 
+echo "+++ Setup +++"
+
 # Get endpoint
-echo -n "Endpoint: "
+echo -n "LEGO Entpoint: "
 if [ "$LEGO_STAGING" == "1" ]; then
     ENDPOINT='https://acme-staging-v02.api.letsencrypt.org/directory'
     echo "staging ($ENDPOINT)"
@@ -32,7 +34,7 @@ fi
 
 LEGO_DOMAINS=${LEGO_DOMAINS:-}
 LEGO_DOMAINS="$(echo -e "${LEGO_DOMAINS}" | tr -d '[:space:]')" # Remove all whitespace 
-echo "Domains: $LEGO_DOMAINS"
+echo "LEGO domains: $LEGO_DOMAINS"
 LEGO_DOMAINS=$(  ( [ -n "$LEGO_DOMAINS" ] && echo ${LEGO_DOMAINS//;/ --domains } ) )
 
 # Print LEGO version
@@ -54,6 +56,7 @@ LEGO_EMAIL_ADDRESS=${LEGO_EMAIL_ADDRESS:-}
 
 [ -n "$LEGO_PROVIDER" ] && echo "DNS provider: $LEGO_PROVIDER"
 
+echo "+++ Get Certificate +++"
 
 #Check if we had cert and keyfile
 if [ ! -f $CERTIFICATE ] || [ ! -f $KEY ] || [ ! -d $ACCOUNTS ]; then
@@ -75,8 +78,10 @@ if [ ! $? == 0 ]; then
 fi
 
 #######################
-# RouterOS Upload     #
+# RouterOS Precheck   #
 #######################
+
+echo "+++ RouterOS Precheck +++"
 
 if [[ -z $ROUTEROS_USER ]] || [[ -z $ROUTEROS_HOST ]] || [[ -z $ROUTEROS_SSH_PORT ]] || [[ -z $ROUTEROS_PRIVATE_KEY ]] || [[ -z $ROUTEROS_DOMAIN ]]; then
     echo "Check the environment variables. Some information is missing." && exit 1
@@ -97,17 +102,19 @@ echo -n "Checking connection to RouterOS..."
 $routeros /system resource print > /dev/null
 [ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 
-#######################
-# Create Certificate  #
-#######################
+################################
+# RouterOS Upload Certificate  #
+################################
+
+echo "+++ RouterOS Upload Certificate +++"
 
 # Clean up leading '_' character for wildcard domains
 ROUTEROS_FILENAME=autoupload_${ROUTEROS_DOMAIN/_/}
 
 # Remove previous certificate and delete Certificate file if the file exist on RouterOS
 echo -n "Removing previous certificate and delete certificate file if the file exist on RouterOS..."
-$routeros /certificate remove [find name=$ROUTEROS_FILENAME.pem_0] \; /certificate remove [find name=$ROUTEROS_FILENAME.pem_1] \; /certificate remove [find name=$ROUTEROS_FILENAME.pem_2] \; /file remove $ROUTEROS_FILENAME.pem > /dev/null
-echo "DONE"
+$routeros /certificate remove [find name=$ROUTEROS_FILENAME.pem_0] \; /certificate remove [find name=$ROUTEROS_FILENAME.pem_1] \; /certificate remove [find name=$ROUTEROS_FILENAME.pem_2] \; /file remove [find name="$ROUTEROS_FILENAME.pem"] > /dev/null
+[ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 
 # Upload Certificate to RouterOS
 echo -n "Uploading Certificate to RouterOS..."
@@ -122,17 +129,19 @@ $routeros /certificate import file-name=$ROUTEROS_FILENAME.pem passphrase=\"\" >
 
 # optional remove certificate file after import
 echo -n "Deleting certificate file after import..."
-$routeros /file remove $ROUTEROS_FILENAME.pem > /dev/null
-echo 'DONE'
+$routeros /file remove [find name="$ROUTEROS_FILENAME.pem"] > /dev/null
+[ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 
 #######################
-# Create Key          #
+# RouterOS Upload Key #
 #######################
+
+echo "+++ RouterOS Upload Key +++"
 
 # Delete key file if the file exist on RouterOS
 echo -n "Deleting key file if the file exist on RouterOS..."
-$routeros /file remove $ROUTEROS_FILENAME.key > /dev/null
-echo 'DONE'
+$routeros /file remove [find name="$ROUTEROS_FILENAME.key"] > /dev/null
+[ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 
 # Upload Key to RouterOS
 echo -n "Upload key to RouterOS..."
@@ -147,8 +156,14 @@ $routeros /certificate import file-name=$ROUTEROS_FILENAME.key passphrase=\"\" \
 
 # optional remove key file after import
 echo -n "Deleting key file after import..."
-$routeros /file remove $ROUTEROS_FILENAME.key > /dev/null
-echo 'DONE'
+$routeros /file remove [find name="$ROUTEROS_FILENAME.key"] > /dev/null
+[ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
+
+#######################
+# RouterOS Set Cert   #
+#######################
+
+echo "+++ RouterOS Set Certificate +++"
 
 # Set certificate to WebServer
 if [ "$SET_ON_WEB" = true ]; then
