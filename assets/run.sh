@@ -168,14 +168,14 @@ echo "+++ RouterOS Set Certificate +++"
 # Set certificate to WebServer
 if [ "$SET_ON_WEB" = true ]; then
 echo -n "Setting certificate to Webserver..."
-$routeros /ip service set www-ssl certificate=$ROUTEROS_FILENAME.pem_0 > /dev/null
+$routeros /ip service set [find dynamic =no and name =www-ssl] certificate=$ROUTEROS_FILENAME.pem_0 > /dev/null
 [ ! $? == 0 ] && echo 'ERROR setting certificate on WebServer!' && exit 1 || echo 'DONE setting certificate on WebServer'
 fi
 
 # Set certificate to API
 if [ "$SET_ON_API" = true ]; then
 echo -n "Setting certificate to API..."
-$routeros /ip service set api-ssl certificate=$ROUTEROS_FILENAME.pem_0 > /dev/null
+$routeros /ip service set [find dynamic =no and name =api-ssl] certificate=$ROUTEROS_FILENAME.pem_0 > /dev/null
 [ ! $? == 0 ] && echo 'ERROR setting certificate on API!' && exit 1 || echo 'DONE setting certificate on API'
 fi
 
