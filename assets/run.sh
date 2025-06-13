@@ -169,28 +169,28 @@ echo "+++ RouterOS Set Certificate +++"
 if [ "$SET_ON_WEB" = true ]; then
 echo -n "Setting certificate to Webserver..."
 $routeros /ip service set [find dynamic =no and name =www-ssl] certificate=$ROUTEROS_FILENAME.pem_0 > /dev/null
-[ ! $? == 0 ] && echo 'ERROR setting certificate on WebServer!' && exit 1 || echo 'DONE setting certificate on WebServer'
+[ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 fi
 
 # Set certificate to API
 if [ "$SET_ON_API" = true ]; then
 echo -n "Setting certificate to API..."
 $routeros /ip service set [find dynamic =no and name =api-ssl] certificate=$ROUTEROS_FILENAME.pem_0 > /dev/null
-[ ! $? == 0 ] && echo 'ERROR setting certificate on API!' && exit 1 || echo 'DONE setting certificate on API'
+[ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 fi
 
 # Set certificate to OpenVPN
 if [ "$SET_ON_OVPN" = true ]; then
 echo -n "Setting certificate to OpenVPN..."
 $routeros /interface ovpn-server server set enabled=yes certificate=$ROUTEROS_FILENAME.pem_0 > /dev/null
-[ ! $? == 0 ] && echo 'ERROR setting certificate on OpenVPN!' && exit 1 || echo 'DONE setting certificate on OpenVPN'
+[ ! $? == 0 ] && echo 'ERRORN!' && exit 1 || echo 'DONE'
 fi
 
 # Set certificate to Hotspot
 if [ "$SET_ON_HOTSPOT" = true ]; then
 echo -n "Setting certificate to Hotspot..."
 $routeros /ip/hotspot/profile set ssl-certificate=$ROUTEROS_FILENAME.pem_0 $HOTSPOT_PROFILE_NAME > /dev/null
-[ ! $? == 0 ] && echo 'ERROR setting certificate on Hotspot!' && exit 1 || echo 'DONE setting certificate on Hotspot'
+[ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 fi
 
 echo "End cycle at $( date '+%Y-%m-%d %H:%M:%S' )"
