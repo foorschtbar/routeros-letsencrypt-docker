@@ -45,6 +45,8 @@ Name | Default | Description
 `SET_ON_API` | true | Set the new certificate on the API
 `SET_ON_OVPN` | false | Set the new certificate on the OpenVPN Server
 `SET_ON_HOTSPOT` | false | Set the new certificate for the HotSpot/CaptivePortal
+`SET_ON_REVERSE_PROXY` | false | Set the new certificate for the Reverse Proxy
+`REVERSE_PROXY_DOMAINS` | _(none)_ | A comma-separated list of Reverse Proxy domains (SNI) to which the certificate will apply
 `HOTSPOT_PROFILE_NAME`| _(none)_ | HotSpot/CaptivePortal profile name
 
 ## SSH Setup
