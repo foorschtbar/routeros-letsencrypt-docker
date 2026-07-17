@@ -64,16 +64,15 @@ echo "+++ Get Certificate +++"
 #Check if we had cert and keyfile
 if [ ! -f $CERTIFICATE ] || [ ! -f $KEY ] || [ ! -d $ACCOUNTS ]; then
     echo "No account, certificate or keyfile found. Getting new certificates from LEGO-Client..."
-    LEGO_MODE=run
 else
     echo "Account, Certificate and keyfile found. Renewing certificates from LEGO-Client..."
-    LEGO_MODE='renew --days 60 --no-random-sleep'
+    LEGO_MODE='--renew-days 60 --no-random-sleep'
 fi
 
 if [ -n "$LEGO_PROVIDER" ]; then
-    /lego --server $ENDPOINT --path /letsencrypt --accept-tos --key-type=$LEGO_KEY_TYPE --domains $LEGO_DOMAINS --email $LEGO_EMAIL_ADDRESS --pem --dns $LEGO_PROVIDER --dns-timeout $LEGO_DNS_TIMEOUT $LEGO_ARGS $LEGO_MODE
+    /lego run --server $ENDPOINT --path /letsencrypt --accept-tos --key-type=$LEGO_KEY_TYPE --domains $LEGO_DOMAINS --email $LEGO_EMAIL_ADDRESS --pem --dns $LEGO_PROVIDER --dns.timeout $LEGO_DNS_TIMEOUT $LEGO_ARGS $LEGO_MODE 
 else
-    /lego --server $ENDPOINT --path /letsencrypt --accept-tos --key-type=$LEGO_KEY_TYPE --domains $LEGO_DOMAINS --email $LEGO_EMAIL_ADDRESS --pem $LEGO_ARGS $LEGO_MODE
+    /lego run --server $ENDPOINT --path /letsencrypt --accept-tos --key-type=$LEGO_KEY_TYPE --domains $LEGO_DOMAINS --email $LEGO_EMAIL_ADDRESS --pem $LEGO_ARGS $LEGO_MODE 
 fi
 
 if [ ! $? == 0 ]; then
