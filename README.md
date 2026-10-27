@@ -56,6 +56,19 @@ Name | Default | Description
 * Add User/Group and import Public SSH Key
 * Pass private key into Docker container
 
+### Host key handling
+
+The RouterOS host key is stored in `/letsencrypt/known_hosts` (i.e. `./data/known_hosts`).
+
+* If the host is **not yet** in the file, its key is accepted and saved on first connect.
+* If the host key **changes** (e.g. after a RouterOS reset/upgrade or `/ip ssh regenerate-host-key`), ssh/scp abort with `REMOTE HOST IDENTIFICATION HAS CHANGED` and the upload fails.
+  Verify the new key on the router (`/ip ssh print`), then remove the old entry and let the next run store the new one:
+
+```sh
+ssh-keygen -f ./data/known_hosts -R router.mydomain.tld
+# for a non-default port the entry is "[router.mydomain.tld]:2222"
+```
+
 ## Example
 
 ```yaml

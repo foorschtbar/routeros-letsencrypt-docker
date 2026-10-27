@@ -97,7 +97,10 @@ elif [ ! -f $KEY ]; then
 fi
 
 #Create alias for RouterOS command
-routeros="ssh -i $ROUTEROS_PRIVATE_KEY -o StrictHostKeyChecking=no $ROUTEROS_USER@$ROUTEROS_HOST -p $ROUTEROS_SSH_PORT"
+# Unknown hosts are accepted and stored (TOFU), a changed host key makes ssh/scp fail.
+# known_hosts lives in the persistent volume; remove the host's line to trust a new key.
+SSH_OPTS="-o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/letsencrypt/known_hosts"
+routeros="ssh -i $ROUTEROS_PRIVATE_KEY $SSH_OPTS $ROUTEROS_USER@$ROUTEROS_HOST -p $ROUTEROS_SSH_PORT"
 
 #Check connection to RouterOS
 echo -n "Checking connection to RouterOS..."
@@ -120,7 +123,7 @@ $routeros /certificate remove [find name=$ROUTEROS_FILENAME.pem_0] \; /certifica
 
 # Upload Certificate to RouterOS
 echo -n "Uploading Certificate to RouterOS..."
-scp -q -P $ROUTEROS_SSH_PORT -i "$ROUTEROS_PRIVATE_KEY" "$CERTIFICATE" "$ROUTEROS_USER"@"$ROUTEROS_HOST":"$ROUTEROS_FILENAME.pem"
+scp -q $SSH_OPTS -P $ROUTEROS_SSH_PORT -i "$ROUTEROS_PRIVATE_KEY" "$CERTIFICATE" "$ROUTEROS_USER"@"$ROUTEROS_HOST":"$ROUTEROS_FILENAME.pem"
 [ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 
 sleep 2
@@ -147,7 +150,7 @@ $routeros /file remove [find name="$ROUTEROS_FILENAME.key"] > /dev/null
 
 # Upload Key to RouterOS
 echo -n "Upload key to RouterOS..."
-scp -q -P $ROUTEROS_SSH_PORT -i "$ROUTEROS_PRIVATE_KEY" "$KEY" "$ROUTEROS_USER"@"$ROUTEROS_HOST":"$ROUTEROS_FILENAME.key"
+scp -q $SSH_OPTS -P $ROUTEROS_SSH_PORT -i "$ROUTEROS_PRIVATE_KEY" "$KEY" "$ROUTEROS_USER"@"$ROUTEROS_HOST":"$ROUTEROS_FILENAME.key"
 [ ! $? == 0 ] && echo 'ERROR!' && exit 1 || echo 'DONE'
 
 sleep 2
